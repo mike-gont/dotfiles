@@ -12,7 +12,6 @@
 "    - custom actions
 "    - macros
 "    - plugins configurations
-"    - ccscope and gtags
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -21,24 +20,20 @@
 " plugins
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+" dependencies:
+" git
+" fzf
+
 " Setup vundle plugins manager
 set rtp+=~/.vim/bundle/Vundle.vim/
 
 call vundle#begin()
 
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'dracula/vim', { 'name': 'dracula' }
-Plugin 'arcticicestudio/nord-vim'
 Plugin 'itchyny/lightline.vim'
-Plugin 'ack.vim'
-Plugin 'taglist.vim'
 Plugin 'tpope/vim-fugitive'
-
-" Ctrl-P to search for files. use <F5> inside to refresh.
-Plugin 'kien/ctrlp.vim'
-
+Plugin 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plugin 'junegunn/fzf.vim'
-
 Plugin 'preservim/nerdtree'
 
 " context-aware pasting
@@ -57,6 +52,9 @@ autocmd FileType c,cpp,cs,java setlocal commentstring=//\ %s
 " change surroundings: cs<existing><new> (e.g. cs'")
 " delete surroundings: ds<existing> (e.g. ds")
 Plugin 'tpope/vim-surround'
+
+" Colors
+Plugin 'dracula/vim', { 'name': 'dracula' }
 
 call vundle#end()
 
@@ -85,9 +83,9 @@ set splitbelow splitright
 " vim ui
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" turn line numbers on with relative
+" line numbers
 set number
-set relativenumber
+" set relativenumber
 
 " highlight matching braces
 set showmatch
@@ -192,7 +190,7 @@ nmap <C-F5> :e<cr>
 " open a markdown buffer for notes in a new tab
 command Notes :tabe ~/.vim/notes-scratchpad.md
 
-" Cool search into quickfix window - from yakir
+" search using Ggrep in the quickfix window
 command! -nargs=+ GgrepAutoP execute 'silent Ggrep!' <q-args> | cw | redraw!
 command! GgrepAutoCw execute 'silent Ggrep!' expand('<cword>') | cw | redraw!
 map <Leader>g mG:GgrepAutoP 
@@ -232,106 +230,10 @@ let g:lightline = {
       \ }
 " -----------------------------------------------------------------------------
 
-" config fzf
-"map <C-p> <C-o>:Files<CR>
-"map <leader>t :Tags<CR>
+" Map fzf search to CTRL P
+nnoremap <C-p> :Files<Cr>
 
 " config NERDTree
 map <C-f> :NERDTreeToggle<CR>
 map <leader>nf :NERDTreeFind<CR>
-
-" config CtrlP:
-let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\v[\/](\.git|build|build_unittest|logs.whiteboxtest)$',
-  \ 'file': '\v\.(so|pyc|swp|exe|bat|jar|zip|bz2|tar|sqlite|orig)$',
-  \ }
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" ccscope and gtags
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-" gtags -----------------------------------------
-
-" need to install gtags seperatly before this 
-" gtags config from installation dir 
-source ~/.vim/gtags-vim/plugin/gtags.vim
-
-" set cscope to use gtags 
-set csprg=gtags-cscope
-
-let Gtags_No_Auto_Jump = 1
-
-func Gtags_load_all()
-    !gtags 
-    cs add GTAGS
-endfunc
-
-" init command
-command InitGtags :call Gtags_load_all()<cr><cr>
-
-" finds reference or definitions depending on context
-" cw def -> ref, cw ref -> def
-map <Leader>s mG:GtagsCursor <cr>
-map <Leader>d mG:Gtags
-map <Leader>a mG:Gtagsa
-" note: I added mG to set a marker, so that the quickfix close command would jump back to it
-
-
-" cscope ----------------------------------------
-
-" use both cscope and ctag for 'ctrl-]', ':ta', and 'vim -t'
-set cscopetag
-
-" check cscope for definition of a symbol before checking ctags: set to 1
-" if you want the reverse search order.
-set csto=0
-
-
-" To do the first type of search, hit 'CTRL-\', followed by one of the
-" cscope search types above (s,g,c,t,e,f,i,d).  The result of your cscope
-" search will be displayed in the current window.  You can use CTRL-T to
-" go back to where you were before the search.  
-
-nmap <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
-nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
-nmap <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
-nmap <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
-nmap <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
-nmap <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
-nmap <C-\>i :cs find i <C-R>=expand("<cfile>")<CR><CR>
-nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
-
-" Using 'CTRL-spacebar' (intepreted as CTRL-@ by vim) then a search type
-" makes the vim window split vertically, with search result displayed in
-" the new window.
-
-nmap <C-@>s :vert scs find s <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>g :vert scs find g <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>c :vert scs find c <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>t :vert scs find t <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>e :vert scs find e <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>f :vert scs find f <C-R>=expand("<cfile>")<CR><CR>
-nmap <C-@>i :vert scs find i <C-R>=expand("<cfile>")<CR><CR>
-nmap <C-@>d :vert scs find d <C-R>=expand("<cword>")<CR><CR>
-
-" Using 'CTRL-l' then a search type
-" makes vim open a new tab, with search result displayed in
-" the new tab.
-
-nmap <C-l>s :tab scs find s <C-R>=expand("<cword>")<CR><CR>
-nmap <C-l>g :tab scs find g <C-R>=expand("<cword>")<CR><CR>
-nmap <C-l>c :tab scs find c <C-R>=expand("<cword>")<CR><CR>
-nmap <C-l>t :tab scs find t <C-R>=expand("<cword>")<CR><CR>
-nmap <C-l>e :tab scs find e <C-R>=expand("<cword>")<CR><CR>
-nmap <C-l>f :tab scs find f <C-R>=expand("<cfile>")<CR><CR>
-nmap <C-l>i :tab scs find i <C-R>=expand("<cfile>")<CR><CR>
-nmap <C-l>d :tab scs find d <C-R>=expand("<cword>")<CR><CR>
-
-" Taglist
-let g:Tlist_Show_One_File = 1
-let g:Tlist_Auto_Open = 0
-let g:Tlist_WinWidth = 60
-nnoremap <silent> <Leader><F9> :TlistHighlightTag<CR>
-nnoremap <silent> <F9> :TlistToggle<CR>
 
