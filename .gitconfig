@@ -1,0 +1,26 @@
+[user]
+	name = Mike Gont
+	email = mike.gont@gmail.com
+[alias]
+	l = log --oneline --decorate
+	ci = commit
+	cim = commit -m
+	st = status
+	stu = status -u
+	di = diff
+	co = checkout
+	k = !gitk --all
+	g = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(blue)<%an>%Creset' --abbrev-commit
+	d = difftool
+	re = restore
+	s = status -uno
+	mrg = mergetool -t meld
+
+[color]
+	ui = true
+[core]
+	excludesfile = ~/.gitignore
+[help]
+	autocorrect = 1
+[rerere]
+	enabled = false
